@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-16"?>
+<!--
+  Windows Task Scheduler XML — PE Daily Research
+  가져오기: schtasks /Create /XML daily-research.xml /TN "PE\DailyResearch"
+  또는 작업 스케줄러 UI → 작업 가져오기
+-->
+<Task version="1.4" xmlns="http://schemas.microsoft.com/windows/2004/02/mit/task">
+  <RegistrationInfo>
+    <Description>PE Daily Research Agent — 평일 08:45 KST 자동 실행</Description>
+    <Author>aerok86</Author>
+  </RegistrationInfo>
+  <Triggers>
+    <!-- 월~금 08:45 -->
+    <CalendarTrigger>
+      <StartBoundary>2026-01-01T08:45:00</StartBoundary>
+      <Enabled>true</Enabled>
+      <ScheduleByWeek>
+        <WeeksInterval>1</WeeksInterval>
+        <DaysOfWeek>
+          <Monday />
+          <Tuesday />
+          <Wednesday />
+          <Thursday />
+          <Friday />
+        </DaysOfWeek>
+      </ScheduleByWeek>
+    </CalendarTrigger>
+  </Triggers>
+  <Principals>
+    <Principal id="Author">
+      <LogonType>InteractiveToken</LogonType>
+      <RunLevel>LeastPrivilege</RunLevel>
+    </Principal>
+  </Principals>
+  <Settings>
+    <MultipleInstancesPolicy>IgnoreNew</MultipleInstancesPolicy>
+    <DisallowStartIfOnBatteries>false</DisallowStartIfOnBatteries>
+    <StopIfGoingOnBatteries>false</StopIfGoingOnBatteries>
+    <ExecutionTimeLimit>PT3H</ExecutionTimeLimit>
+    <Priority>7</Priority>
+    <!-- 예약된 시간에 PC가 꺼져있으면 켜진 직후 실행 -->
+    <StartWhenAvailable>true</StartWhenAvailable>
+  </Settings>
+  <Actions Context="Author">
+    <Exec>
+      <Command>powershell.exe</Command>
+      <Arguments>-NonInteractive -ExecutionPolicy Bypass -File "%USERPROFILE%\pe-research\scripts\windows\daily-research.ps1"</Arguments>
+      <WorkingDirectory>%USERPROFILE%\pe-research</WorkingDirectory>
+    </Exec>
+  </Actions>
+</Task>

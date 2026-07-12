@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-16"?>
+<Task version="1.4" xmlns="http://schemas.microsoft.com/windows/2004/02/mit/task">
+  <RegistrationInfo>
+    <Description>Brain Vault Ingest Worker — 평일 09:30/14:00/21:00 + 로그인 시 즉시</Description>
+    <Author>aerok86</Author>
+  </RegistrationInfo>
+  <Triggers>
+    <!-- 로그인 시 즉시 실행 (missedfire 복구) -->
+    <LogonTrigger>
+      <Enabled>true</Enabled>
+    </LogonTrigger>
+    <!-- 평일 09:30 -->
+    <CalendarTrigger>
+      <StartBoundary>2026-01-01T09:30:00</StartBoundary>
+      <Enabled>true</Enabled>
+      <ScheduleByWeek>
+        <WeeksInterval>1</WeeksInterval>
+        <DaysOfWeek><Monday /><Tuesday /><Wednesday /><Thursday /><Friday /></DaysOfWeek>
+      </ScheduleByWeek>
+    </CalendarTrigger>
+    <!-- 평일 14:00 -->
+    <CalendarTrigger>
+      <StartBoundary>2026-01-01T14:00:00</StartBoundary>
+      <Enabled>true</Enabled>
+      <ScheduleByWeek>
+        <WeeksInterval>1</WeeksInterval>
+        <DaysOfWeek><Monday /><Tuesday /><Wednesday /><Thursday /><Friday /></DaysOfWeek>
+      </ScheduleByWeek>
+    </CalendarTrigger>
+    <!-- 매일 21:00 -->
+    <CalendarTrigger>
+      <StartBoundary>2026-01-01T21:00:00</StartBoundary>
+      <Enabled>true</Enabled>
+      <ScheduleByDaily>
+        <DaysInterval>1</DaysInterval>
+      </ScheduleByDaily>
+    </CalendarTrigger>
+  </Triggers>
+  <Principals>
+    <Principal id="Author">
+      <LogonType>InteractiveToken</LogonType>
+      <RunLevel>LeastPrivilege</RunLevel>
+    </Principal>
+  </Principals>
+  <Settings>
+    <MultipleInstancesPolicy>IgnoreNew</MultipleInstancesPolicy>
+    <DisallowStartIfOnBatteries>false</DisallowStartIfOnBatteries>
+    <StopIfGoingOnBatteries>false</StopIfGoingOnBatteries>
+    <ExecutionTimeLimit>PT2H</ExecutionTimeLimit>
+    <StartWhenAvailable>true</StartWhenAvailable>
+  </Settings>
+  <Actions Context="Author">
+    <Exec>
+      <Command>powershell.exe</Command>
+      <Arguments>-NonInteractive -ExecutionPolicy Bypass -File "%USERPROFILE%\pe-research\scripts\windows\ingest-worker.ps1"</Arguments>
+      <WorkingDirectory>%USERPROFILE%\pe-research</WorkingDirectory>
+    </Exec>
+  </Actions>
+</Task>

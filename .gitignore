@@ -1,0 +1,20 @@
+# 민감정보 — 절대 커밋 금지
+.mcp.json
+
+# 로그 (로컬에서만 생성)
+logs/*.log
+logs/ingest-item-*.log
+
+# 인제스트 큐 처리 내역 (개인 데이터)
+ingest-queue/pending/*.json
+ingest-queue/done/*.json
+ingest-queue/failed/*.json
+ingest-queue/done/
+ingest-queue/failed/
+
+# macOS
+.DS_Store
+
+# 임시파일
+*.tmp
+*.swp
