@@ -1,4 +1,4 @@
-# =============================================================================
+﻿# =============================================================================
 # Brain Vault Ingest Worker - Windows
 # =============================================================================
 # 큐(pending/*.json)를 스캔해 Obsidian vault에 ingest.
@@ -13,8 +13,14 @@ $PendingDir  = "$QueueDir\pending"
 $DoneDir     = "$QueueDir\done"
 $FailedDir   = "$QueueDir\failed"
 $PromptTmpl  = "$ProjectDir\prompts\ingest-daily.md"
-# Windows Obsidian vault 경로 — 실제 경로로 수정 필요
-$VaultDir    = "$env:USERPROFILE\Documents\Brain"
+# Windows Obsidian vault 경로 — 후보를 순서대로 자동 탐지 (첫 번째로 존재하는 경로 사용)
+$VaultCandidates = @(
+    "$env:USERPROFILE\iCloudDrive\iCloud~md~obsidian\Brain",
+    "$env:USERPROFILE\Documents\Brain",
+    "$env:USERPROFILE\OneDrive\Documents\Brain"
+)
+$VaultDir = $VaultCandidates | Where-Object { Test-Path $_ } | Select-Object -First 1
+if (-not $VaultDir) { $VaultDir = $VaultCandidates[0] }  # 없으면 첫 후보로 (아래 Test-Path에서 명확히 실패 로깅)
 $LogDir      = "$ProjectDir\logs"
 $LogFile     = "$LogDir\ingest-$(Get-Date -Format 'yyyy-MM-dd').log"
 
@@ -50,9 +56,10 @@ Log "처리 대기: $pendingCount 건"
 Log "[1/4] 네트워크 연결 확인..."
 for ($i = 1; $i -le 10; $i++) {
     try {
-        Invoke-WebRequest -Uri "https://api.anthropic.com" -TimeoutSec 5 -UseBasicParsing | Out-Null
+        Invoke-WebRequest -Uri "https://api.anthropic.com" -TimeoutSec 5 -UseBasicParsing -Method Head | Out-Null
         Log "  네트워크 OK"; break
     } catch {
+        if ($_.Exception.Response) { Log "  네트워크 OK (HTTP 응답 수신)"; break }
         if ($i -eq 10) { Log "  ERROR: 네트워크 미연결. 종료(큐 보존)."; exit 1 }
         Log "  네트워크 미준비 ($i/10) - 60초 후 재시도"
         Start-Sleep -Seconds 60

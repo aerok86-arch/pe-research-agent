@@ -1,4 +1,4 @@
-# =============================================================================
+﻿# =============================================================================
 # PE Daily Research - Windows Task Scheduler entry point
 # =============================================================================
 # Task Scheduler가 매일 평일 08:45 KST에 호출.
@@ -43,11 +43,17 @@ Log "[1/3] 네트워크 연결 확인..."
 $networkOk = $false
 for ($i = 1; $i -le 10; $i++) {
     try {
-        Invoke-WebRequest -Uri "https://api.anthropic.com" -TimeoutSec 5 -UseBasicParsing | Out-Null
+        Invoke-WebRequest -Uri "https://api.anthropic.com" -TimeoutSec 5 -UseBasicParsing -Method Head | Out-Null
         Log "  네트워크 OK"
         $networkOk = $true
         break
     } catch {
+        # 서버가 HTTP 응답(404/405 등)을 반환 = 네트워크는 연결됨
+        if ($_.Exception.Response) {
+            Log "  네트워크 OK (HTTP 응답 수신)"
+            $networkOk = $true
+            break
+        }
         if ($i -eq 10) {
             Log "  ERROR: 10분 대기 후에도 네트워크 미연결. 종료."
             exit 1

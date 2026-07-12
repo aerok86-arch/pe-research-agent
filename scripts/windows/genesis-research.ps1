@@ -1,4 +1,4 @@
-# =============================================================================
+﻿# =============================================================================
 # Genesis PE Daily Research - Windows Task Scheduler entry point
 # =============================================================================
 
@@ -34,9 +34,10 @@ Write-Host $header; Add-Content -Path $LogFile -Value $header
 Log "[1/3] 네트워크 연결 확인..."
 for ($i = 1; $i -le 10; $i++) {
     try {
-        Invoke-WebRequest -Uri "https://api.anthropic.com" -TimeoutSec 5 -UseBasicParsing | Out-Null
+        Invoke-WebRequest -Uri "https://api.anthropic.com" -TimeoutSec 5 -UseBasicParsing -Method Head | Out-Null
         Log "  네트워크 OK"; break
     } catch {
+        if ($_.Exception.Response) { Log "  네트워크 OK (HTTP 응답 수신)"; break }
         if ($i -eq 10) { Log "  ERROR: 네트워크 미연결. 종료."; exit 1 }
         Log "  네트워크 미준비 ($i/10) - 60초 후 재시도"
         Start-Sleep -Seconds 60

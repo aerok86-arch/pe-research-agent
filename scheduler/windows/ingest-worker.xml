@@ -5,9 +5,10 @@
     <Author>aerok86</Author>
   </RegistrationInfo>
   <Triggers>
-    <!-- 로그인 시 즉시 실행 (missedfire 복구) -->
+    <!-- 로그인 시 즉시 실행 (missedfire 복구) — 현재 사용자로 스코프(관리자 불필요) -->
     <LogonTrigger>
       <Enabled>true</Enabled>
+      <UserId>DESKTOP-DTFL2BF\John &amp; HH</UserId>
     </LogonTrigger>
     <!-- 평일 09:30 -->
     <CalendarTrigger>
@@ -31,9 +32,9 @@
     <CalendarTrigger>
       <StartBoundary>2026-01-01T21:00:00</StartBoundary>
       <Enabled>true</Enabled>
-      <ScheduleByDaily>
+      <ScheduleByDay>
         <DaysInterval>1</DaysInterval>
-      </ScheduleByDaily>
+      </ScheduleByDay>
     </CalendarTrigger>
   </Triggers>
   <Principals>
