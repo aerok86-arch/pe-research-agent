@@ -1,4 +1,4 @@
-# =============================================================================
+﻿# =============================================================================
 # Meeting Notes Sync - Windows (Notion 회의록 -> Brain Vault)
 # =============================================================================
 # 매일 1회 fire. checkpoint(state\meeting-sync-state.json) 이후 신규 회의록을
@@ -10,8 +10,14 @@ $ErrorActionPreference = "Stop"
 
 $ProjectDir  = "$env:USERPROFILE\pe-research"
 $PromptFile  = "$ProjectDir\prompts\meeting-sync.md"
-# Windows Obsidian vault 경로 — 실제 경로로 수정 필요 (ingest-worker.ps1과 동일 vault)
-$VaultDir    = "$env:USERPROFILE\Documents\Brain"
+# Windows Obsidian vault 경로 — ingest-worker.ps1과 동일한 자동 탐지 (첫 번째로 존재하는 경로)
+$VaultCandidates = @(
+    "$env:USERPROFILE\iCloudDrive\iCloud~md~obsidian\Brain",
+    "$env:USERPROFILE\Documents\Brain",
+    "$env:USERPROFILE\OneDrive\Documents\Brain"
+)
+$VaultDir = $VaultCandidates | Where-Object { Test-Path $_ } | Select-Object -First 1
+if (-not $VaultDir) { $VaultDir = $VaultCandidates[0] }
 $LogDir      = "$ProjectDir\logs"
 $LogFile     = "$LogDir\meeting-sync-$(Get-Date -Format 'yyyy-MM-dd').log"
 
@@ -40,9 +46,10 @@ Write-Host $header; Add-Content -Path $LogFile -Value $header
 Log "[1/4] 네트워크 연결 확인..."
 for ($i = 1; $i -le 10; $i++) {
     try {
-        Invoke-WebRequest -Uri "https://api.anthropic.com" -TimeoutSec 5 -UseBasicParsing | Out-Null
+        Invoke-WebRequest -Uri "https://api.anthropic.com" -TimeoutSec 5 -UseBasicParsing -Method Head | Out-Null
         Log "  네트워크 OK"; break
     } catch {
+        if ($_.Exception.Response) { Log "  네트워크 OK (HTTP 응답 수신)"; break }
         if ($i -eq 10) { Log "  ERROR: 네트워크 미연결. 종료."; exit 1 }
         Log "  네트워크 미준비 ($i/10) - 60초 후 재시도"
         Start-Sleep -Seconds 60
