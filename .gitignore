@@ -12,6 +12,9 @@ ingest-queue/failed/*.json
 ingest-queue/done/
 ingest-queue/failed/
 
+# 회의록 sync 상태·검토대기 (개인 데이터 가능성)
+state/
+
 # macOS
 .DS_Store
 
