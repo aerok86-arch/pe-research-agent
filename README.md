@@ -51,17 +51,21 @@ pe-research/
 │   ├── daily-research.sh      # macOS 실행 스크립트 (launchd)
 │   ├── genesis-research.sh    # macOS Genesis 스크립트
 │   ├── ingest-worker.sh       # macOS Ingest Worker 스크립트
+│   ├── meeting-sync.sh        # macOS 회의록 sync 스크립트 (수동 실행용 — 스케줄러는 Windows 전용, 아래 참고)
 │   ├── preflight.sh           # 환경 사전 점검
 │   ├── test-run.sh            # 수동 테스트 실행
 │   └── windows/
 │       ├── daily-research.ps1 # Windows PowerShell 스크립트
 │       ├── genesis-research.ps1
-│       └── ingest-worker.ps1
+│       ├── ingest-worker.ps1
+│       └── meeting-sync.ps1   # 회의록 sync (스케줄러는 Windows에서만 등록 — 아래 참고)
 ├── scheduler/
 │   ├── macos/                 # launchd plist 파일
 │   └── windows/               # Task Scheduler XML 파일
 │       ├── daily-research.xml
 │       ├── genesis-research.xml
+│       ├── ingest-worker.xml
+│       └── meeting-sync.xml
 │       └── ingest-worker.xml
 ├── ingest-queue/
 │   ├── pending/               # 처리 대기 JSON
@@ -160,10 +164,13 @@ PowerShell (관리자 권한):
 schtasks /Create /XML "$env:USERPROFILE\pe-research\scheduler\windows\daily-research.xml" /TN "PE\DailyResearch" /F
 schtasks /Create /XML "$env:USERPROFILE\pe-research\scheduler\windows\genesis-research.xml" /TN "PE\GenesisResearch" /F
 schtasks /Create /XML "$env:USERPROFILE\pe-research\scheduler\windows\ingest-worker.xml" /TN "PE\IngestWorker" /F
+schtasks /Create /XML "$env:USERPROFILE\pe-research\scheduler\windows\meeting-sync.xml" /TN "PE\MeetingSync" /F
 
 # 상태 확인
 schtasks /Query /TN "PE\DailyResearch" /FO LIST
 ```
+
+> **Meeting Sync는 Windows 전용 스케줄.** 맥북은 휴대용이라 꺼져있거나 잠들어 있는 시간이 많고, Windows PC는 항상 켜져있는 고정 데스크탑이라 여기서만 스케줄 등록함 (2026-07-13 결정). macOS 쪽엔 `scripts/meeting-sync.sh`가 남아있지만 launchd 등록은 하지 않음 — 필요 시 수동 실행(`bash ~/pe-research/scripts/meeting-sync.sh`)만 가능. 같은 vault(iCloud)에 두 기기가 동시에 쓰면 sync 충돌 위험이 있어 실행 주체를 하나로 고정.
 
 또는 `작업 스케줄러` UI → `작업 가져오기`로 XML 파일 직접 임포트.
 
@@ -179,7 +186,7 @@ schtasks /Query /TN "PE\DailyResearch" /FO LIST
 VAULT_DIR="$HOME/Library/Mobile Documents/iCloud~md~obsidian/Documents/Brain"
 ```
 
-**Windows** — `scripts/windows/ingest-worker.ps1`의 `$VaultDir` 변수를 실제 경로로 수정:
+**Windows** — `scripts/windows/ingest-worker.ps1`와 `scripts/windows/meeting-sync.ps1` **둘 다** `$VaultDir` 변수를 실제 경로(iCloud/Obsidian vault가 Windows에 동기화되는 경로)로 수정:
 ```powershell
 $VaultDir = "$env:USERPROFILE\Documents\Brain"
 ```

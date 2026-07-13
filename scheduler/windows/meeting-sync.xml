@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-16"?>
+<Task version="1.4" xmlns="http://schemas.microsoft.com/windows/2004/02/mit/task">
+  <RegistrationInfo>
+    <Description>Meeting Notes Sync — Notion 회의록 -&gt; Brain Vault, 매일 22:30 + 로그인 시 즉시</Description>
+    <Author>aerok86</Author>
+  </RegistrationInfo>
+  <Triggers>
+    <!-- 로그인 시 즉시 실행 (missedfire 복구 겸 백로그 소화) -->
+    <LogonTrigger>
+      <Enabled>true</Enabled>
+    </LogonTrigger>
+    <!-- 매일 22:30 -->
+    <CalendarTrigger>
+      <StartBoundary>2026-01-01T22:30:00</StartBoundary>
+      <Enabled>true</Enabled>
+      <ScheduleByDay>
+        <DaysInterval>1</DaysInterval>
+      </ScheduleByDay>
+    </CalendarTrigger>
+  </Triggers>
+  <Principals>
+    <Principal id="Author">
+      <LogonType>InteractiveToken</LogonType>
+      <RunLevel>LeastPrivilege</RunLevel>
+    </Principal>
+  </Principals>
+  <Settings>
+    <MultipleInstancesPolicy>IgnoreNew</MultipleInstancesPolicy>
+    <DisallowStartIfOnBatteries>false</DisallowStartIfOnBatteries>
+    <StopIfGoingOnBatteries>false</StopIfGoingOnBatteries>
+    <ExecutionTimeLimit>PT30M</ExecutionTimeLimit>
+    <StartWhenAvailable>true</StartWhenAvailable>
+  </Settings>
+  <Actions Context="Author">
+    <Exec>
+      <Command>powershell.exe</Command>
+      <Arguments>-NonInteractive -ExecutionPolicy Bypass -File "%USERPROFILE%\pe-research\scripts\windows\meeting-sync.ps1"</Arguments>
+      <WorkingDirectory>%USERPROFILE%\pe-research</WorkingDirectory>
+    </Exec>
+  </Actions>
+</Task>
