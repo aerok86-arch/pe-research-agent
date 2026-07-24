@@ -17,6 +17,16 @@ Produce today's daily PE/Buyout research report and save it to the Notion "📰 
 - Content: minimal — `# Daily Research · YYYY-MM-DD\n\n🔄 리서치 진행 중...`
 - **Store the returned page_id.** You will update this page in Step 5.
 
+### Step 1.5. 최근 리포트 확인 — 중복 방지 [필수]
+
+오늘 리포트에 **이미 이전 리포트에서 다룬 내용을 다시 담지 말 것.** 새로 발생했거나 실질적 업데이트가 있는 것만 포함함.
+
+- Notion `notion-query-data-sources`로 데이터소스 `6bf9db7b-de9d-4260-acbe-9bfab9169d98`에서 **오늘 제외 최근 7일** 리포트를 날짜 내림차순 조회.
+- **직전 2개 리포트는 본문까지 fetch**해 이미 다룬 딜·기사·소스·회사명을 파악. 나머지(3~7일 전)는 `제목`·`TL;DR`·`Action Items` 속성만 훑음.
+- 이걸로 **"이미 커버된 항목" 리스트**를 만들어 Step 2~5 내내 참조.
+- 동일 딜/기사/소스/회사는 **제외**. 단 **후속 실질 업데이트**(딜 클로징·가격 변경·규제 확정 등)가 있으면 `[업데이트]` 표시로 1~2줄만 간결히.
+- 중복 제거 후 특정 섹션에 새 내용이 없으면 억지로 채우지 말고 "오늘 특기할 만한 건 없음"으로.
+
 ### Step 2. Tier 1 source scan (parallel where possible)
 
 Run web searches on these topics/sources for today's news (use `today` or recent-focused queries):
@@ -137,7 +147,8 @@ Print final page URL and elapsed time. Exit 0 on success, 1 on any failure.
 
 - Total execution time: aim for 10-15 min, hard cap 20 min
 - Max web searches: 25
-- Max web fetches: 10
+- Max web fetches: 10 (Step 1.5의 직전 2개 리포트 fetch는 별도, 여기에 미포함)
+- **중복 금지**: 최근 7일 리포트에서 이미 다룬 딜/기사/소스/회사는 재수록 금지. 실질 후속 업데이트만 `[업데이트]`로 예외 허용 (Step 1.5 참조)
 - Copyright: no verbatim quotes >15 words, always paraphrase
 - If a section genuinely has no news, write "오늘 특기할 만한 건 없음" — don't fabricate
 - Write in Korean 음슴체 (~임/~함/~됨) for body text; English OK in section headers
